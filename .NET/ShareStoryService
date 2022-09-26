@@ -1,0 +1,52 @@
+public Paged<ShareStory> GetAll(int pageIndex, int pageSize)
+        {
+            string procName = "[dbo].[ShareStory_SelectAllV2]";
+
+            Paged<ShareStory> pagedResult = null;
+            List<ShareStory> results = null;
+            int totalCount = 0;
+            
+
+
+            _data.ExecuteCmd(procName, delegate (SqlParameterCollection col)
+                {
+                    col.AddWithValue("@PageIndex", pageIndex);
+                    col.AddWithValue("@PageSize", pageSize);
+
+                },
+                delegate (IDataReader reader, short set)
+                {
+                    ShareStory shareStory = new ShareStory();
+
+                    
+                    int startingIdex = 0;
+
+                    shareStory.Id = reader.GetSafeInt32(startingIdex++);
+                    shareStory.Name = reader.GetSafeString(startingIdex++);
+                    shareStory.Email = reader.GetSafeString(startingIdex++);
+                    shareStory.Story = reader.GetSafeString(startingIdex++);
+                    shareStory.CreatedBy = reader.GetSafeInt32(startingIdex++);
+                   
+                    shareStory.Files = reader.DeserializeObject<List<File>>(startingIdex++);
+
+                    if (totalCount == 0)
+                    {
+                        totalCount = reader.GetSafeInt32(startingIdex++);
+                    }
+
+                    if (results == null)
+                    {
+                        results = new List<ShareStory>();
+                    }
+
+                    results.Add(shareStory);
+
+                });
+
+            if (results != null)
+            {
+                pagedResult = new Paged<ShareStory>(results, pageIndex, pageSize, totalCount);
+            }
+
+            return pagedResult;
+        }
