@@ -1,0 +1,51 @@
+ALTER PROC [dbo].[ShareStory_SelectAllV2]
+
+			@PageIndex int
+			,@PageSize int
+
+/*---------TEST CODE --------------
+DECLARE @PageIndex int = 0
+					,@PageSize int = 130
+			
+			EXECUTE dbo.ShareStory_SelectAllV2
+					@PageIndex
+					,@PageSize
+
+
+
+*/--------------- END TEST CODE -------------
+
+AS
+
+BEGIN 
+
+DECLARE @Offset int = @PageIndex * @PageSize
+
+		SELECT sS.Id
+				,sS.[Name]
+				,sS.Email
+				,sS.Story
+				,sS.CreatedBy 
+				, Files = (
+					select
+						f.Id AS FileId
+						,f.[Url]
+						,f.FileTypeId as fileType
+						,f.CreatedBy
+						
+							from dbo.Files as f
+							inner join dbo.ShareStoryFiles as ssF on f.Id = ssF.FileId
+							where sS.Id = ssF.ShareStoryId
+							FOR JSON auto
+
+				 )
+				 ,TotalCount = COUNT(1) OVER()
+	
+		
+		FROM [dbo].[ShareStory] as sS
+		ORDER BY Id
+
+			OFFSET @Offset Rows
+			Fetch Next @PageSize Rows ONLY
+		
+END 
