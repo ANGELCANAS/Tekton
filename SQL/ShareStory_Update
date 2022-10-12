@@ -1,0 +1,99 @@
+ALTER  PROC [dbo].[ShareStory_UpdateV2] 
+
+	@Name nvarchar(50)
+	,@Email nvarchar(50)
+	,@Story nvarchar(3000)
+	,@ShareStoryUDT dbo.[shareStoryFileUDTv5] READONLY
+	,@Id int
+
+			
+AS
+/*---------------TEST CODE------------------------------
+	
+	DECLARE	@Id int = 1
+
+	DECLARE @Name nvarchar(50) = 'Angel Updated 4'
+			,@Email nvarchar(50) = 'x@mail.com'
+			,@Story nvarchar(3000) = 'This is a Combined Test story 4'
+
+	SELECT * FROM dbo.Users WHERE Email = @Email
+	
+	Declare @ShareStoryUDT dbo.[shareStoryFileUDTv5]
+	
+	INSERT INTO @ShareStoryUDT 
+		([FileId])
+	values 
+		(872)
+		,(873)
+		,(874)
+		,(875)
+		--('angel1.com') --872
+		--,('emily.com') --873
+
+
+
+
+	EXECUTE [dbo].[ShareStory_UpdateV2] 
+			@Name
+			,@Email
+			,@Story
+			,@ShareStoryUDT
+			,@Id 
+
+
+	select top 5 *
+	from dbo.ShareStory
+
+	select*
+	from dbo.ShareStoryFiles
+
+	select*
+	from dbo.Files
+	
+
+*/------------------END TEST CODE-------------------
+
+BEGIN
+
+	DECLARE @datNow datetime2 = getutcdate()
+
+	UPDATE [dbo].[ShareStory]
+	SET [Name] = @Name
+		,[Email] = @Email
+		,[Story] = @Story 
+		,[DateModified] = @datNow 
+	WHERE Id = @Id 
+
+	
+
+
+		
+
+	SELECT 'checking deletables'
+
+	SELECT * 
+	FROM dbo.ShareStoryFiles AS ssf 
+	INNER JOIN dbo.ShareStory AS ss ON ssf.ShareStoryId = @Id
+	WHERE ssf.ShareStoryId = @Id
+
+	SELECT 'deleting deletables'
+
+	DELETE dbo.ShareStoryFiles
+	FROM dbo.ShareStoryFiles AS ssf 
+	INNER JOIN dbo.ShareStory AS ss ON ssf.ShareStoryId = @Id
+	WHERE ssf.ShareStoryId = @Id
+
+	SELECT 'inserting new'
+
+	INSERT INTO dbo.ShareStoryFiles  --**bridgeTable
+		(ShareStoryId
+		,FileId
+		)
+	SELECT 
+		@Id
+		,f.Id
+	FROM dbo.Files as f 
+	INNER JOIN @ShareStoryUDT as ssu ON ssu.FileId = f.Id
+			
+
+END
