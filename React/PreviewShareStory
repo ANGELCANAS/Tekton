@@ -1,0 +1,45 @@
+import React from 'react';
+import { Card, Stack } from 'react-bootstrap';
+import ReactHtmlParser from 'react-html-parser';
+import PropTypes from 'prop-types';
+
+function StoryPreview(props) {
+    return (
+        <React.Fragment>
+            <Card className="shadow-lg p-3 mb-5 bg-body rounded">
+                <h1 id="story-header" className="display-5 story-preview-center">
+                    Story Preview
+                </h1>
+                <Card className="shadow p-3 mb-5 bg-body rounded d-flex flex-column mb-3 story-preview-card-size ">
+                    <Stack>
+                        <div className="row">
+                            <div className="card-header">
+                                <img className="card-img-bottom" src={props.imgPreview} alt="" />
+                            </div>
+                        </div>
+                        <br />
+                        <div className="story-preview-center ">{ReactHtmlParser(props.info.story)}</div>
+                        <br />
+                        <p className="story-preview-center">
+                            Story by: <i>{props.info.name}</i>{' '}
+                        </p>
+                        <p className="story-preview-center">
+                            Email: <i>{props.info.email}</i>{' '}
+                        </p>
+                    </Stack>
+                </Card>
+            </Card>
+        </React.Fragment>
+    );
+}
+
+StoryPreview.propTypes = {
+    info: PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        email: PropTypes.string.isRequired,
+        story: PropTypes.string.isRequired,
+    }),
+    imgPreview: PropTypes.string,
+};
+
+export default StoryPreview;
